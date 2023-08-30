@@ -6,18 +6,20 @@
 
 
 from tkinter import ttk
-from tkinter import *
+from tkinter import Tk, LabelFrame, Label, Entry, Button, Toplevel, StringVar, END
 
 import sqlite3
 
 
-class Productos:
+class AppProductos:
     base = 'productos.db'
 
     def __init__(self, root):
         self.wind = root
         self.wind.title("Productos")
         self.wind.geometry("850x600")
+
+        self.create_table()
 
         frame1 = LabelFrame(
             self.wind, text="Informacion Del Producto", font=("Calibri", 14))
@@ -75,6 +77,21 @@ class Productos:
             result = cursor.execute(query, parameters)
             conn.commit()
             return result
+
+    def create_table(self):
+        with sqlite3.connect(self.base) as conn:
+            query = """
+            CREATE TABLE IF NOT EXISTS articulos(
+            id INTEGER,
+            nombre varchar(100) NOT NULL,
+            precio INTEGER NOT NULL,
+            cantidad INTEGER NOT NULL,
+            PRIMARY KEY(id AUTOINCREMENT))
+            """
+
+            cursor = conn.cursor()
+            cursor.execute(query)
+            conn.commit()
 
     def consulta(self):
         book = self.trv.get_children()
@@ -160,5 +177,5 @@ class Productos:
 
 if __name__ == '__main__':
     root = Tk()
-    product = Productos(root)
+    product = AppProductos(root)
     root.mainloop()
