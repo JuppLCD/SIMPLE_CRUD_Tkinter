@@ -7,8 +7,7 @@
 from tkinter import ttk
 from tkinter import Tk, LabelFrame, Label, Entry, Button, Toplevel, StringVar, END
 
-import sqlite3
-
+from models.product import Product, ProductModel
 
 class AppProductos:
     base = 'productos.db'
@@ -18,7 +17,7 @@ class AppProductos:
         self.wind.title("Productos")
         self.wind.geometry("850x600")
 
-        self.create_table()
+        ProductModel.create_table()
 
         frame1 = LabelFrame(
             self.wind, text="Informacion Del Producto", font=("Calibri", 14))
@@ -70,34 +69,13 @@ class AppProductos:
                       command=self.Actualizar, width=12, height=2)
         btn3.grid(row=5, column=2)
 
-    def run_query(self, query, parameters=()):
-        with sqlite3.connect(self.base) as conn:
-            cursor = conn.cursor()
-            result = cursor.execute(query, parameters)
-            conn.commit()
-            return result
-
-    def create_table(self):
-        with sqlite3.connect(self.base) as conn:
-            query = """
-            CREATE TABLE IF NOT EXISTS articulos(
-            id INTEGER,
-            nombre varchar(100) NOT NULL,
-            precio INTEGER NOT NULL,
-            cantidad INTEGER NOT NULL,
-            PRIMARY KEY(id AUTOINCREMENT))
-            """
-
-            cursor = conn.cursor()
-            cursor.execute(query)
-            conn.commit()
-
     def consulta(self):
         book = self.trv.get_children()
         for element in book:
             self.trv.delete(element)
-        query = 'SELECT id, nombre, precio, cantidad FROM articulos'
-        rows = self.run_query(query)
+
+        rows = ProductModel.get_all()
+
         for row in rows:
             self.trv.insert('', 0, text=row[1], values=row)
 
@@ -106,10 +84,15 @@ class AppProductos:
 
     def Agregar(self):
         if self.validar():
-            query = 'INSERT INTO articulos VALUES(?,?,?,?)'
-            parameters = (self.ent1.get(), self.ent2.get(),
-                          self.ent3.get(), self.ent4.get())
-            self.run_query(query, parameters)
+            new_product = Product(
+                        product_id=self.ent1.get(),
+                        name=self.ent2.get(),
+                        price=self.ent3.get(),
+                        quantity=self.ent4.get()
+                        )
+
+            ProductModel.store(new_product)
+
             self.ent1.delete(0, END)
             self.ent2.delete(0, END)
             self.ent3.delete(0, END)
@@ -123,9 +106,12 @@ class AppProductos:
             self.trv.item(self.trv.selection())['text']
         except IndexError as e:
             return
+        except Exception as e:
+            print(e)
         nombre = self.trv.item(self.trv.selection())['text']
-        query = 'DELETE FROM articulos WHERE nombre = ?'
-        self.run_query(query, (nombre,))
+
+        ProductModel.delete(nombre)
+
         self.consulta()
 
     def Actualizar(self):
@@ -167,9 +153,8 @@ class AppProductos:
         ), precio, nueva.get(), cantidad), width=12, height=2).grid(row=7, column=2, pady=20)
 
     def edit_record(self, nue_vo, precio, nueva, cantidad):
-        query = 'UPDATE articulos SET precio = ?, cantidad = ? WHERE precio = ? AND cantidad = ?'
-        parameters = (nue_vo, nueva, precio, cantidad)
-        self.run_query(query, parameters)
+        ProductModel.update(nue_vo, nueva, precio, cantidad)
+
         self.edit_wind.destroy()
         self.consulta()
 
