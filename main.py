@@ -101,7 +101,6 @@ class AppProductos:
             new_product = Product(name, price, quantity)
             ProductModel.store(new_product)
 
-            # self.inputs["ID"].clear_text()
             self.inputs["NAME"].clear_text()
             self.inputs["PRICE"].clear_text()
             self.inputs["QUANTITY"].clear_text()
