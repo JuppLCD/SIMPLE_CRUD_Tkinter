@@ -3,11 +3,12 @@
 # Codigo base en github = https://github.com/programadork/codigo_ejemplo
 # Link video YT = https://www.youtube.com/watch?v=M07_zpAL0vk
 
-
 from tkinter import ttk
-from tkinter import Tk, LabelFrame, Label, Entry, Button, Toplevel, StringVar, END
+from tkinter import Tk, LabelFrame, Button, Toplevel
+import logging
 
 from models.product import Product, ProductModel
+from ui.my_widgets import MyInput
 
 class AppProductos:
     base = 'productos.db'
@@ -35,36 +36,38 @@ class AppProductos:
         self.trv.heading(2, text="Nombre Del Producto")
         self.trv.heading(3, text="Precio Del Producto")
         self.trv.heading(4, text="Cantidad Del Producto")
+
         self.consulta()
 
-        lbl1 = Label(frame2, text="ID Del Producto", width=20)
-        lbl1.grid(row=0, column=0, padx=5, pady=3)
-        self.ent1 = Entry(frame2)
-        self.ent1.grid(row=0, column=1, padx=5, pady=3)
+        self.inputs = dict()
+        self.inputs['ID'] = MyInput(
+            master=frame2,
+            label_text="ID Del Producto",
+            position=(0,0)
+        )
+        self.inputs['NAME'] = MyInput(
+            master=frame2,
+            label_text="Nombre Del Producto",
+            position=(1,0)
+        )
+        self.inputs['PRICE'] = MyInput(
+            master=frame2,
+            label_text="Precio Del Producto",
+            position=(2,0)
+        )
+        self.inputs['QUANTITY'] = MyInput(
+            master=frame2,
+            label_text="Cantidad Del Producto",
+            position=(3,0)
+        )
 
-        lbl2 = Label(frame2, text="Nombre Del Producto", width=20)
-        lbl2.grid(row=1, column=0, padx=5, pady=3)
-        self.ent2 = Entry(frame2)
-        self.ent2.grid(row=1, column=1, padx=5, pady=3)
-
-        lbl3 = Label(frame2, text="Precio Del Producto", width=20)
-        lbl3.grid(row=2, column=0, padx=5, pady=3)
-        self.ent3 = Entry(frame2)
-        self.ent3.grid(row=2, column=1, padx=5, pady=3)
-
-        lbl4 = Label(frame2, text="Cantidad Del Producto", width=20)
-        lbl4.grid(row=3, column=0, padx=5, pady=3)
-        self.ent4 = Entry(frame2)
-        self.ent4.grid(row=3, column=1, padx=5, pady=3)
 
         btn1 = Button(frame2, text="Agregar",
                       command=self.Agregar, width=12, height=2)
         btn1.grid(row=5, column=0)
-
         btn2 = Button(frame2, text="Eliminar",
                       command=self.Eliminar, width=12, height=2)
         btn2.grid(row=5, column=1)
-
         btn3 = Button(frame2, text="Actualizar",
                       command=self.Actualizar, width=12, height=2)
         btn3.grid(row=5, column=2)
@@ -80,47 +83,55 @@ class AppProductos:
             self.trv.insert('', 0, text=row[1], values=row)
 
     def validar(self):
-        return len(self.ent1.get()) != 0 and len(self.ent2.get()) != 0 and len(self.ent3.get()) != 0 and len(self.ent4.get()) != 0
+        return not (self.inputs["ID"].is_empty() and self.inputs["NAME"].is_empty() and self.inputs["PRICE"].is_empty() and self.inputs["QUANTITY"].is_empty())
 
     def Agregar(self):
         if self.validar():
-            new_product = Product(
-                        product_id=self.ent1.get(),
-                        name=self.ent2.get(),
-                        price=self.ent3.get(),
-                        quantity=self.ent4.get()
-                        )
+            name=self.inputs["NAME"].get_text()
+            price=self.inputs["PRICE"].get_text()
+            quantity=self.inputs["QUANTITY"].get_text()
+            product_id=self.inputs["ID"].get_text()
 
+            new_product = Product(name, price, quantity, product_id)
             ProductModel.store(new_product)
 
-            self.ent1.delete(0, END)
-            self.ent2.delete(0, END)
-            self.ent3.delete(0, END)
-            self.ent4.delete(0, END)
+            self.inputs["ID"].clear_text()
+            self.inputs["NAME"].clear_text()
+            self.inputs["PRICE"].clear_text()
+            self.inputs["QUANTITY"].clear_text()
         else:
-            print("no salvado")
+            print("Los campos estan vacios")
         self.consulta()
 
     def Eliminar(self):
         try:
             self.trv.item(self.trv.selection())['text']
-        except IndexError as e:
-            return
+        # except IndexError as e:
+        #     return
         except Exception as e:
-            print(e)
-        nombre = self.trv.item(self.trv.selection())['text']
+            logging. exception(e)
+            return
+        
+        product_id = self.trv.item(self.trv.selection())['values'][0]
 
-        ProductModel.delete(nombre)
+        ProductModel.delete(product_id)
 
         self.consulta()
 
     def Actualizar(self):
         try:
             self.trv.item(self.trv.selection())['text']
-        except IndexError as e:
+        # except IndexError as e:
+        #     print(e)
+        #     return
+        except Exception as e:
+            logging. exception(e)
             return
-        precio = self.trv.item(self.trv.selection())['values'][2]
-        cantidad = self.trv.item(self.trv.selection())['values'][3]
+
+        product_id = self.trv.item(self.trv.selection())['values'][0]
+        old_price = self.trv.item(self.trv.selection())['values'][2]
+        old_quantity = self.trv.item(self.trv.selection())['values'][3]
+
         self.edit_wind = Toplevel()
         self.edit_wind.title("Actualizar")
         self.edit_wind.geometry("400x300")
@@ -129,31 +140,35 @@ class AppProductos:
             self.edit_wind, text="Actualizar Producto",  font=("Calibri", 12))
         frame.pack(fill="both", expand="yes", padx=20, pady=10)
 
-        Label(frame, text="Antiguo Precio:", width=15, font=(
-            "Calibri", 10)).grid(row=2, column=1, padx=10, pady=20)
-        Entry(frame, textvariable=StringVar(frame, value=precio),
-              state='readonly').grid(row=2, column=2)
+        input_old_price = MyInput(master=frame, label_text="Antiguo Precio: ",position=(2,1))
+        input_old_price.disabled()
+        input_old_price.set_text(old_price)
 
-        Label(frame, text="Nuevo Precio", width=15,
-              font=("Calibri", 10)).grid(row=3, column=1)
-        nue_vo = Entry(frame)
-        nue_vo.grid(row=3, column=2)
+        input_new_price = MyInput(master=frame, label_text="Nuevo Precio: ",position=(3,1))
 
-        Label(frame, text="Antigua Cantidad:", width=15, font=(
-            "Calibri", 10)).grid(row=4, column=1, padx=10, pady=20)
-        Entry(frame, textvariable=StringVar(frame, value=cantidad),
-              state='readonly').grid(row=4, column=2)
+        input_old_quantity = MyInput(master=frame, label_text="Antiguo Precio: ",position=(4,1))
+        input_old_quantity.disabled()
+        input_old_quantity.set_text(old_quantity)
 
-        Label(frame, text="Nueva Cantidad", width=15,
-              font=("Calibri", 10)).grid(row=5, column=1)
-        nueva = Entry(frame)
-        nueva.grid(row=5, column=2)
+        input_new_quantity = MyInput(master=frame, label_text="Nuevo Precio: ",position=(5,1))
 
-        Button(frame, text="Actualizar", command=lambda: self.edit_record(nue_vo.get(
-        ), precio, nueva.get(), cantidad), width=12, height=2).grid(row=7, column=2, pady=20)
+        Button(
+            frame,
+            text="Actualizar",
+            command=lambda: self.edit_record(input_new_price.get_text(),
+                                             input_new_quantity.get_text(),
+                                             product_id
+                                             ),
+            width=12,
+            height=2
+            ).grid(
+                row=7,
+                column=2,
+                pady=20
+            )
 
-    def edit_record(self, nue_vo, precio, nueva, cantidad):
-        ProductModel.update(nue_vo, nueva, precio, cantidad)
+    def edit_record(self, new_price, new_quantity, product_id):
+        ProductModel.update(new_price, new_quantity, product_id)
 
         self.edit_wind.destroy()
         self.consulta()
