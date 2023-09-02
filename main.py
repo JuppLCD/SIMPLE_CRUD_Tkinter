@@ -10,6 +10,7 @@ import logging
 from models.product import Product, ProductModel
 from ui.my_widgets import MyInput
 
+
 class AppProductos:
     base = 'productos.db'
 
@@ -43,24 +44,23 @@ class AppProductos:
         self.inputs['ID'] = MyInput(
             master=frame2,
             label_text="ID Del Producto",
-            position=(0,0)
+            position=(0, 0)
         )
         self.inputs['NAME'] = MyInput(
             master=frame2,
             label_text="Nombre Del Producto",
-            position=(1,0)
+            position=(1, 0)
         )
         self.inputs['PRICE'] = MyInput(
             master=frame2,
             label_text="Precio Del Producto",
-            position=(2,0)
+            position=(2, 0)
         )
         self.inputs['QUANTITY'] = MyInput(
             master=frame2,
             label_text="Cantidad Del Producto",
-            position=(3,0)
+            position=(3, 0)
         )
-
 
         btn1 = Button(frame2, text="Agregar",
                       command=self.Agregar, width=12, height=2)
@@ -87,10 +87,10 @@ class AppProductos:
 
     def Agregar(self):
         if self.validar():
-            name=self.inputs["NAME"].get_text()
-            price=self.inputs["PRICE"].get_text()
-            quantity=self.inputs["QUANTITY"].get_text()
-            product_id=self.inputs["ID"].get_text()
+            name = self.inputs["NAME"].get_text()
+            price = self.inputs["PRICE"].get_text()
+            quantity = self.inputs["QUANTITY"].get_text()
+            product_id = self.inputs["ID"].get_text()
 
             new_product = Product(name, price, quantity, product_id)
             ProductModel.store(new_product)
@@ -111,7 +111,7 @@ class AppProductos:
         except Exception as e:
             logging. exception(e)
             return
-        
+
         product_id = self.trv.item(self.trv.selection())['values'][0]
 
         ProductModel.delete(product_id)
@@ -140,32 +140,37 @@ class AppProductos:
             self.edit_wind, text="Actualizar Producto",  font=("Calibri", 12))
         frame.pack(fill="both", expand="yes", padx=20, pady=10)
 
-        input_old_price = MyInput(master=frame, label_text="Antiguo Precio: ",position=(2,1))
+        input_old_price = MyInput(
+            master=frame, label_text="Antiguo Precio: ", position=(2, 1))
         input_old_price.disabled()
         input_old_price.set_text(old_price)
 
-        input_new_price = MyInput(master=frame, label_text="Nuevo Precio: ",position=(3,1))
+        input_new_price = MyInput(
+            master=frame, label_text="Nuevo Precio: ", position=(3, 1))
 
-        input_old_quantity = MyInput(master=frame, label_text="Antiguo Precio: ",position=(4,1))
+        input_old_quantity = MyInput(
+            master=frame, label_text="Antiguo Precio: ", position=(4, 1))
         input_old_quantity.disabled()
         input_old_quantity.set_text(old_quantity)
 
-        input_new_quantity = MyInput(master=frame, label_text="Nuevo Precio: ",position=(5,1))
+        input_new_quantity = MyInput(
+            master=frame, label_text="Nuevo Precio: ", position=(5, 1))
 
         Button(
             frame,
             text="Actualizar",
-            command=lambda: self.edit_record(input_new_price.get_text(),
-                                             input_new_quantity.get_text(),
-                                             product_id
-                                             ),
+            command=lambda: self.edit_record(
+                input_new_price.get_text(),
+                input_new_quantity.get_text(),
+                product_id
+            ),
             width=12,
             height=2
-            ).grid(
-                row=7,
-                column=2,
-                pady=20
-            )
+        ).grid(
+            row=7,
+            column=2,
+            pady=20
+        )
 
     def edit_record(self, new_price, new_quantity, product_id):
         ProductModel.update(new_price, new_quantity, product_id)

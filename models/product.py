@@ -1,7 +1,8 @@
 from .connection import Connection
 
+
 class Product:
-    def __init__(self, name, price, quantity, product_id = None ):
+    def __init__(self, name, price, quantity, product_id=None):
         self.name = name
         self.price = price
         self.quantity = quantity
@@ -36,20 +37,21 @@ class ProductModel:
         # for product_db in products:
         #     product = Product(product_id=product_db[0], name=product_db[1], price=product_db[2], quantity=product_db[3])
         #     all_products.append(product)
-        
+
         return products
 
     @staticmethod
-    def store(product : Product):
+    def store(product: Product):
         query = 'INSERT INTO products VALUES(?,?,?,?)'
-        parameters = (product.id, product.name, product.price, product.quantity)
+        parameters = (product.id, product.name,
+                      product.price, product.quantity)
 
         ProductModel._conn.run_query(query, parameters)
 
     @staticmethod
     def update(new_price, new_quantity, product_id):
         query = 'UPDATE products SET price = ?, quantity = ? WHERE id = ?'
-        parameters =  ( new_price, new_quantity, product_id)
+        parameters = (new_price, new_quantity, product_id)
 
         ProductModel._conn.run_query(query, parameters)
 
@@ -57,4 +59,3 @@ class ProductModel:
     def delete(product_id):
         query = 'DELETE FROM products WHERE id = ?'
         ProductModel._conn.run_query(query, (product_id,))
-

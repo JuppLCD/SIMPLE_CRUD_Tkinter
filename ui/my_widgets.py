@@ -1,9 +1,10 @@
 from tkinter import LabelFrame, Label, Entry, StringVar
 
+
 class MyInput:
-    def __init__(self, master: LabelFrame, label_text: str, position=(0,0) ) -> None:
+    def __init__(self, master: LabelFrame, label_text: str, position=(0, 0)) -> None:
         row = position[0]
-        column= position[1]
+        column = position[1]
 
         label = Label(master, text=label_text, width=20)
         label.grid(row=row, column=column, padx=5, pady=3)
@@ -33,4 +34,3 @@ class MyInput:
     def enable(self):
         self.clear_text()
         self.entry.config(state='normal')
-
