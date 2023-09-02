@@ -8,12 +8,11 @@ from tkinter import Tk, LabelFrame, Button, Toplevel
 import logging
 
 from models.product import Product, ProductModel
+
 from ui.my_widgets import MyInput
 
 
 class AppProductos:
-    base = 'productos.db'
-
     def __init__(self, root):
         self.wind = root
         self.wind.title("Productos")
@@ -21,15 +20,16 @@ class AppProductos:
 
         ProductModel.create_table()
 
-        frame1 = LabelFrame(
+        frame_table = LabelFrame(
             self.wind, text="Informacion Del Producto", font=("Calibri", 14))
-        frame2 = LabelFrame(
+        frame_form = LabelFrame(
             self.wind, text="Datos Del Producto", font=("Calibri", 14))
 
-        frame1.pack(fill="both", expand="yes", padx=20, pady=10)
-        frame2.pack(fill="both", expand="yes", padx=20, pady=10)
+        frame_table.pack(fill="both", expand="yes", padx=20, pady=10)
+        frame_form.pack(fill="both", expand="yes", padx=20, pady=10)
 
-        self.trv = ttk.Treeview(frame1, columns=(
+        # Creando y colocando la tabla en el frame_table
+        self.trv = ttk.Treeview(frame_table, columns=(
             1, 2, 3, 4), show="headings", height="5")
         self.trv.pack()
 
@@ -38,41 +38,44 @@ class AppProductos:
         self.trv.heading(3, text="Precio Del Producto")
         self.trv.heading(4, text="Cantidad Del Producto")
 
-        self.consulta()
+        self.get_all_data()
 
+        # Creando y colocando los inputs en el frame_form
         self.inputs = dict()
+
         self.inputs['ID'] = MyInput(
-            master=frame2,
+            master=frame_form,
             label_text="ID Del Producto",
             position=(0, 0)
         )
         self.inputs['NAME'] = MyInput(
-            master=frame2,
+            master=frame_form,
             label_text="Nombre Del Producto",
             position=(1, 0)
         )
         self.inputs['PRICE'] = MyInput(
-            master=frame2,
+            master=frame_form,
             label_text="Precio Del Producto",
             position=(2, 0)
         )
         self.inputs['QUANTITY'] = MyInput(
-            master=frame2,
+            master=frame_form,
             label_text="Cantidad Del Producto",
             position=(3, 0)
         )
 
-        btn1 = Button(frame2, text="Agregar",
-                      command=self.Agregar, width=12, height=2)
+        # Botones del formulario
+        btn1 = Button(frame_form, text="Agregar",
+                      command=self.add_product, width=12, height=2)
         btn1.grid(row=5, column=0)
-        btn2 = Button(frame2, text="Eliminar",
-                      command=self.Eliminar, width=12, height=2)
+        btn2 = Button(frame_form, text="Eliminar",
+                      command=self.delete_product, width=12, height=2)
         btn2.grid(row=5, column=1)
-        btn3 = Button(frame2, text="Actualizar",
-                      command=self.Actualizar, width=12, height=2)
+        btn3 = Button(frame_form, text="Actualizar",
+                      command=self.product_editing_window, width=12, height=2)
         btn3.grid(row=5, column=2)
 
-    def consulta(self):
+    def get_all_data(self):
         book = self.trv.get_children()
         for element in book:
             self.trv.delete(element)
@@ -82,11 +85,11 @@ class AppProductos:
         for row in rows:
             self.trv.insert('', 0, text=row[1], values=row)
 
-    def validar(self):
+    def validate_inputs(self):
         return not (self.inputs["ID"].is_empty() and self.inputs["NAME"].is_empty() and self.inputs["PRICE"].is_empty() and self.inputs["QUANTITY"].is_empty())
 
-    def Agregar(self):
-        if self.validar():
+    def add_product(self):
+        if self.validate_inputs():
             name = self.inputs["NAME"].get_text()
             price = self.inputs["PRICE"].get_text()
             quantity = self.inputs["QUANTITY"].get_text()
@@ -101,9 +104,9 @@ class AppProductos:
             self.inputs["QUANTITY"].clear_text()
         else:
             print("Los campos estan vacios")
-        self.consulta()
+        self.get_all_data()
 
-    def Eliminar(self):
+    def delete_product(self):
         try:
             self.trv.item(self.trv.selection())['text']
         # except IndexError as e:
@@ -116,9 +119,9 @@ class AppProductos:
 
         ProductModel.delete(product_id)
 
-        self.consulta()
+        self.get_all_data()
 
-    def Actualizar(self):
+    def product_editing_window(self):
         try:
             self.trv.item(self.trv.selection())['text']
         # except IndexError as e:
@@ -128,16 +131,16 @@ class AppProductos:
             logging. exception(e)
             return
 
+        self.edit_window = Toplevel()
+        self.edit_window.title("Actualizar")
+        self.edit_window.geometry("400x300")
+
         product_id = self.trv.item(self.trv.selection())['values'][0]
         old_price = self.trv.item(self.trv.selection())['values'][2]
         old_quantity = self.trv.item(self.trv.selection())['values'][3]
 
-        self.edit_wind = Toplevel()
-        self.edit_wind.title("Actualizar")
-        self.edit_wind.geometry("400x300")
-
         frame = LabelFrame(
-            self.edit_wind, text="Actualizar Producto",  font=("Calibri", 12))
+            self.edit_window, text="Actualizar Producto",  font=("Calibri", 12))
         frame.pack(fill="both", expand="yes", padx=20, pady=10)
 
         input_old_price = MyInput(
@@ -159,7 +162,7 @@ class AppProductos:
         Button(
             frame,
             text="Actualizar",
-            command=lambda: self.edit_record(
+            command=lambda: self.update_product(
                 input_new_price.get_text(),
                 input_new_quantity.get_text(),
                 product_id
@@ -172,11 +175,11 @@ class AppProductos:
             pady=20
         )
 
-    def edit_record(self, new_price, new_quantity, product_id):
+    def update_product(self, new_price, new_quantity, product_id):
         ProductModel.update(new_price, new_quantity, product_id)
 
-        self.edit_wind.destroy()
-        self.consulta()
+        self.edit_window.destroy()
+        self.get_all_data()
 
 
 if __name__ == '__main__':
