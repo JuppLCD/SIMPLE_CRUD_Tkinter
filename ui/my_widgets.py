@@ -1,4 +1,15 @@
-from tkinter import LabelFrame, Label, Entry, StringVar
+from tkinter import LabelFrame, Label, Entry, StringVar, Button
+
+
+class MyButton(Button):
+    def __init__(self, master: LabelFrame, text, command,  position=(0, 0)):
+        super().__init__(master, text=text, command=command)
+
+        row = position[0]
+        column = position[1]
+
+        self.config(width=12, height=2)
+        self.grid(row=row, column=column)
 
 
 class MyInput:

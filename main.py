@@ -4,12 +4,12 @@
 # Link video YT = https://www.youtube.com/watch?v=M07_zpAL0vk
 
 from tkinter import ttk
-from tkinter import Tk, LabelFrame, Button, Toplevel
+from tkinter import Tk, LabelFrame, Toplevel
 import logging
 
 from models.product import Product, ProductModel
 
-from ui.my_widgets import MyInput
+from ui.my_widgets import MyInput, MyButton
 
 
 class AppProductos:
@@ -65,15 +65,24 @@ class AppProductos:
         )
 
         # Botones del formulario
-        btn1 = Button(frame_form, text="Agregar",
-                      command=self.add_product, width=12, height=2)
-        btn1.grid(row=5, column=0)
-        btn2 = Button(frame_form, text="Eliminar",
-                      command=self.delete_product, width=12, height=2)
-        btn2.grid(row=5, column=1)
-        btn3 = Button(frame_form, text="Actualizar",
-                      command=self.product_editing_window, width=12, height=2)
-        btn3.grid(row=5, column=2)
+        MyButton(
+            master=frame_form,
+            text="Agregar",
+            command=self.add_product,
+            position=(5, 0)
+        )
+        MyButton(
+            master=frame_form,
+            text="Eliminar",
+            command=self.delete_product,
+            position=(5, 1)
+        )
+        MyButton(
+            master=frame_form,
+            text="Actualizar",
+            command=self.product_editing_window,
+            position=(5, 2)
+        )
 
     def get_all_data(self):
         book = self.trv.get_children()
@@ -123,7 +132,7 @@ class AppProductos:
 
     def product_editing_window(self):
         try:
-            self.trv.item(self.trv.selection())['text']
+            self.trv.item(self.trv.selection())['values'][0]    # product_id
         # except IndexError as e:
         #     print(e)
         #     return
@@ -133,7 +142,7 @@ class AppProductos:
 
         self.edit_window = Toplevel()
         self.edit_window.title("Actualizar")
-        self.edit_window.geometry("400x300")
+        self.edit_window.geometry("400x200")
 
         product_id = self.trv.item(self.trv.selection())['values'][0]
         old_price = self.trv.item(self.trv.selection())['values'][2]
@@ -159,20 +168,21 @@ class AppProductos:
         input_new_quantity = MyInput(
             master=frame, label_text="Nuevo Precio: ", position=(5, 1))
 
-        Button(
-            frame,
+        MyButton(
+            master=frame,
             text="Actualizar",
             command=lambda: self.update_product(
                 input_new_price.get_text(),
                 input_new_quantity.get_text(),
                 product_id
             ),
-            width=12,
-            height=2
-        ).grid(
-            row=7,
-            column=2,
-            pady=20
+            position=(7, 1)
+        )
+        MyButton(
+            master=frame,
+            text="Cancelar",
+            command=self.edit_window.destroy,
+            position=(7, 2)
         )
 
     def update_product(self, new_price, new_quantity, product_id):
