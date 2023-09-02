@@ -47,9 +47,9 @@ class ProductModel:
         ProductModel._conn.run_query(query, parameters)
 
     @staticmethod
-    def update(new_price, new_quantity, old_price, old_quantity):
-        query = 'UPDATE products SET price = ?, quantity = ? WHERE price = ? AND quantity = ?'
-        parameters =  ( new_price, new_quantity, old_price, old_quantity)
+    def update(new_price, new_quantity, product_id):
+        query = 'UPDATE products SET price = ?, quantity = ? WHERE id = ?'
+        parameters =  ( new_price, new_quantity, product_id)
 
         ProductModel._conn.run_query(query, parameters)
 
