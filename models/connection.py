@@ -1,5 +1,6 @@
 import os
 import sqlite3
+import logging
 
 
 class Connection:
@@ -18,4 +19,4 @@ class Connection:
                 conn.commit()
                 return result
         except Exception as e:
-            print(e)
+            logging.exception(e)
