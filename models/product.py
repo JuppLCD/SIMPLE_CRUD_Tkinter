@@ -54,7 +54,7 @@ class ProductModel:
         ProductModel._conn.run_query(query, parameters)
 
     @staticmethod
-    def delete(product_name):
-        query = 'DELETE FROM products WHERE name = ?'
-        ProductModel._conn.run_query(query, (product_name))
+    def delete(product_id):
+        query = 'DELETE FROM products WHERE id = ?'
+        ProductModel._conn.run_query(query, (product_id,))
 
