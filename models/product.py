@@ -42,9 +42,8 @@ class ProductModel:
 
     @staticmethod
     def store(product: Product):
-        query = 'INSERT INTO products VALUES(?,?,?,?)'
-        parameters = (product.id, product.name,
-                      product.price, product.quantity)
+        query = 'INSERT INTO products (name,price,quantity) VALUES(?,?,?)'
+        parameters = (product.name, product.price, product.quantity)
 
         ProductModel._conn.run_query(query, parameters)
 
