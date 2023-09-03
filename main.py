@@ -59,6 +59,9 @@ class AppProductos:
             position=(2, 0)
         )
 
+        # Colocando un focus por defecto al input nombre en el formulario
+        self.inputs['NAME'].entry.focus()
+
         # Botones del formulario
         MyButton(
             master=frame_form,
@@ -161,6 +164,9 @@ class AppProductos:
 
         input_new_quantity = MyInput(
             master=frame, label_text="Nuevo Precio: ", position=(5, 1))
+
+        # Colocando un focus por defecto al input nuevo precio en el formulario de edicion
+        input_new_price.entry.focus()
 
         MyButton(
             master=frame,
