@@ -13,17 +13,17 @@ from ui.my_widgets import MyInput, MyButton
 
 
 class AppProductos:
-    def __init__(self, root):
-        self.wind = root
-        self.wind.title("Productos")
-        self.wind.geometry("850x600")
+    def __init__(self):
+        self.window = Tk()
+        self.window.title("Productos")
+        self.window.geometry("850x600")
 
         ProductModel.create_table()
 
         frame_table = LabelFrame(
-            self.wind, text="Informacion Del Producto", font=("Calibri", 14))
+            self.window, text="Informacion Del Producto", font=("Calibri", 14))
         frame_form = LabelFrame(
-            self.wind, text="Datos Del Producto", font=("Calibri", 14))
+            self.window, text="Datos Del Producto", font=("Calibri", 14))
 
         frame_table.pack(fill="both", expand="yes", padx=20, pady=10)
         frame_form.pack(fill="both", expand="yes", padx=20, pady=10)
@@ -187,6 +187,5 @@ class AppProductos:
 
 
 if __name__ == '__main__':
-    root = Tk()
-    product = AppProductos(root)
-    root.mainloop()
+    my_app = AppProductos()
+    my_app.window.mainloop()
