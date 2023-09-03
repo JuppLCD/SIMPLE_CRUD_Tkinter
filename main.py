@@ -3,13 +3,11 @@
 # Codigo base en github = https://github.com/programadork/codigo_ejemplo
 # Link video YT = https://www.youtube.com/watch?v=M07_zpAL0vk
 
-from tkinter import ttk
 from tkinter import Tk, LabelFrame, Toplevel, END
-import logging
 
 from models.product import Product, ProductModel
 
-from ui.my_widgets import MyInput, MyButton
+from ui.my_widgets import MyInput, MyButton, MyTable
 
 
 class AppProductos:
@@ -29,14 +27,7 @@ class AppProductos:
         frame_form.pack(fill="both", expand="yes", padx=20, pady=10)
 
         # Creando y colocando la tabla en el frame_table
-        self.table = ttk.Treeview(frame_table, columns=(
-            1, 2, 3, 4), show="headings", height="5")
-        self.table.pack()
-
-        self.table.heading(1, text="ID Del Producto")
-        self.table.heading(2, text="Nombre Del Producto")
-        self.table.heading(3, text="Precio Del Producto")
-        self.table.heading(4, text="Cantidad Del Producto")
+        self.table = MyTable(frame_table)
 
         self.get_all_data()
 
@@ -83,14 +74,10 @@ class AppProductos:
         )
 
     def get_all_data(self):
-        # get_children() retorna una lista, e * al inicio es el spreed operator
-        self.table.delete(*self.table.get_children())
+        self.table.clear_table()
 
         all_products = ProductModel.get_all()
-
-        for product in all_products:
-            self.table.insert('', END, text=product.id, values=(
-                product.id, product.name, product.price, product.quantity))
+        self.table.insert_all_products(all_products)
 
     def validate_inputs(self):
         return not (self.inputs["NAME"].is_empty() and self.inputs["PRICE"].is_empty() and self.inputs["QUANTITY"].is_empty())
@@ -112,38 +99,18 @@ class AppProductos:
         self.get_all_data()
 
     def delete_product(self):
-        try:
-            self.table.item(self.table.selection())['text']
-        # except IndexError as e:
-        #     return
-        except Exception as e:
-            logging. exception(e)
-            return
+        product = self.table.get_product()
 
-        product_id = self.table.item(self.table.selection())['values'][0]
-
-        ProductModel.delete(product_id)
+        ProductModel.delete(product.id)
 
         self.get_all_data()
 
     def product_editing_window(self):
-        try:
-            self.table.item(self.table.selection())[
-                'values'][0]    # product_id
-        # except IndexError as e:
-        #     print(e)
-        #     return
-        except Exception as e:
-            logging. exception(e)
-            return
+        product = self.table.get_product()
 
         self.edit_window = Toplevel()
         self.edit_window.title("Actualizar")
         self.edit_window.geometry("400x200")
-
-        product_id = self.table.item(self.table.selection())['values'][0]
-        old_price = self.table.item(self.table.selection())['values'][2]
-        old_quantity = self.table.item(self.table.selection())['values'][3]
 
         frame = LabelFrame(
             self.edit_window, text="Actualizar Producto",  font=("Calibri", 12))
@@ -152,7 +119,7 @@ class AppProductos:
         input_old_price = MyInput(
             master=frame, label_text="Antiguo Precio: ", position=(2, 1))
         input_old_price.disabled()
-        input_old_price.set_text(old_price)
+        input_old_price.set_text(product.price)
 
         input_new_price = MyInput(
             master=frame, label_text="Nuevo Precio: ", position=(3, 1))
@@ -160,7 +127,7 @@ class AppProductos:
         input_old_quantity = MyInput(
             master=frame, label_text="Antiguo Precio: ", position=(4, 1))
         input_old_quantity.disabled()
-        input_old_quantity.set_text(old_quantity)
+        input_old_quantity.set_text(product.quantity)
 
         input_new_quantity = MyInput(
             master=frame, label_text="Nuevo Precio: ", position=(5, 1))
@@ -174,7 +141,7 @@ class AppProductos:
             command=lambda: self.update_product(
                 input_new_price.get_text(),
                 input_new_quantity.get_text(),
-                product_id
+                product.id
             ),
             position=(7, 1)
         )
