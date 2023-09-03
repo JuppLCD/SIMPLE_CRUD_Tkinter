@@ -4,7 +4,7 @@
 # Link video YT = https://www.youtube.com/watch?v=M07_zpAL0vk
 
 from tkinter import ttk
-from tkinter import Tk, LabelFrame, Toplevel
+from tkinter import Tk, LabelFrame, Toplevel, END
 import logging
 
 from models.product import Product, ProductModel
@@ -83,14 +83,14 @@ class AppProductos:
         )
 
     def get_all_data(self):
-        book = self.table.get_children()
-        for element in book:
-            self.table.delete(element)
+        # get_children() retorna una lista, e * al inicio es el spreed operator
+        self.table.delete(*self.table.get_children())
 
-        rows = ProductModel.get_all()
+        all_products = ProductModel.get_all()
 
-        for row in rows:
-            self.table.insert('', 0, text=row[1], values=row)
+        for product in all_products:
+            self.table.insert('', END, text=product.id, values=(
+                product.id, product.name, product.price, product.quantity))
 
     def validate_inputs(self):
         return not (self.inputs["NAME"].is_empty() and self.inputs["PRICE"].is_empty() and self.inputs["QUANTITY"].is_empty())

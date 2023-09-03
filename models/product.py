@@ -32,13 +32,13 @@ class ProductModel:
         query = 'SELECT id, name, price, quantity FROM products'
         products = ProductModel._conn.run_query(query)
 
-        # TODO: Luego cambiar a retornar la lista formateada
-        # all_products = []
-        # for product_db in products:
-        #     product = Product(product_id=product_db[0], name=product_db[1], price=product_db[2], quantity=product_db[3])
-        #     all_products.append(product)
+        all_products = []
+        for product_db in products:
+            product = Product(
+                product_id=product_db[0], name=product_db[1], price=product_db[2], quantity=product_db[3])
+            all_products.append(product)
 
-        return products
+        return all_products
 
     @staticmethod
     def store(product: Product):
