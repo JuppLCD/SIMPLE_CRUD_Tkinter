@@ -3,7 +3,7 @@
 # Codigo base en github = https://github.com/programadork/codigo_ejemplo
 # Link video YT = https://www.youtube.com/watch?v=M07_zpAL0vk
 
-from tkinter import Tk, LabelFrame, Toplevel, END
+from tkinter import Tk, LabelFrame, Toplevel
 
 from models.product import Product, ProductModel
 
