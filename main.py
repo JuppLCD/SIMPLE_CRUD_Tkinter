@@ -9,7 +9,24 @@ class AppProductos:
     def __init__(self):
         self.window = Tk()
         self.window.title("Productos")
-        self.window.geometry("850x600")
+
+        # Tamaño de la ventana principal
+        window_width = 850
+        window_height = 600
+
+        # Tamaño de la pantalla del usuario
+        screen_width = self.window.winfo_screenwidth()
+        screen_height = self.window.winfo_screenheight()
+
+        # Obteniendo la cordenada en la cual se va a colocar la punta izquierda de la pantalla (se busca centrarla)
+        x = int((screen_width/2) - (window_width/2))
+        y = int((screen_height/2) - (window_height/2) - 30)
+        # -30 por la barra  de tareas en la parte inferior
+
+        # Colocando el ancho, alto de la ventana y la cordenada en la que se va a ubicar la misma
+        self.window.geometry(
+            f"{window_width}x{window_height}+{x}+{y}"
+        )
 
         ProductModel.create_table()
 
